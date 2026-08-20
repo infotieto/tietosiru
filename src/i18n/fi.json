@@ -1,0 +1,5 @@
+{
+      "nav": { "home": "Tietosiru Oy", "services": "Palvelut", "contact": "Yhteystiedot" },
+      "hero": { "title": "Tietosiru Oy", "subtitle": "Luotettava kumppanisi", "cta": "Ota yhteytta" },
+      "footer": { "privacy": "Tietosuojaseloste" }
+    }

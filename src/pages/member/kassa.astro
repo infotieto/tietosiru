@@ -1,0 +1,58 @@
+---
+export const prerender = false;
+import LayoutCommon from '../../app/LayoutCommon.astro';
+---
+
+<LayoutCommon>
+  <main class="max-w-2xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">Kassa</h1>
+    <div id="cart-empty" class="hidden text-gray-600">Kori on tyhjä. <a href="/member/tuotteet" class="underline">Siirry tuotteisiin</a></div>
+    <div id="checkout">
+      <div id="cart-items" class="space-y-2 mb-6"></div>
+      <p id="cart-total" class="font-semibold mb-6"></p>
+      <form id="order-form" class="space-y-4 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <p class="text-sm text-gray-600 dark:text-gray-400">Lasku lähetetään kirjautumissähköpostiisi PDF-liitteenä. Mukana peruutuslinkki (7 pv).</p>
+        <label class="block text-sm font-medium"><span>Lisätietoja tilaukseen (valinnainen)</span><textarea id="note" rows="3" class="mt-1 w-full rounded border border-gray-300 px-3 py-2 dark:bg-gray-700 dark:border-gray-600"></textarea></label>
+        <button type="submit" class="w-full bg-blue-600 text-white rounded py-3 hover:bg-blue-700">Lähetä tilaus — saat laskun sähköpostiin</button>
+        <p id="order-msg" class="text-sm min-h-[1.25rem]"></p>
+      </form>
+    </div>
+  </main>
+  <script>
+    import { cartState, cartTotalCents, clearCart } from '../../stores/cart.ts';
+    function fmt(cents: number){ return new Intl.NumberFormat('fi-FI',{style:'currency',currency:'EUR'}).format(cents/100); }
+    function render(){
+      const { items } = cartState.get();
+      const list = document.getElementById('cart-items')!;
+      const totalEl = document.getElementById('cart-total')!;
+      const emptyEl = document.getElementById('cart-empty')!;
+      const checkoutEl = document.getElementById('checkout')!;
+      if (items.length === 0){ emptyEl.classList.remove('hidden'); checkoutEl.classList.add('hidden'); return; }
+      emptyEl.classList.add('hidden'); checkoutEl.classList.remove('hidden');
+      list.innerHTML = items.map(i => `<div class="flex justify-between text-sm"><span>${i.name} × ${i.qty}</span><span>${fmt(i.price_cents*i.qty)}</span></div>`).join('');
+      totalEl.textContent = 'Yhteensä: ' + fmt(cartTotalCents(items));
+    }
+    render();
+    cartState.listen(render);
+    const form = document.getElementById('order-form') as HTMLFormElement;
+    const msg = document.getElementById('order-msg') as HTMLParagraphElement;
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const items = cartState.get().items;
+      if (items.length === 0) return;
+      msg.textContent = 'Lähetetään...';
+      const res = await fetch('/api/orders/create', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items }),
+      });
+      const data = await res.json().catch(()=>({}));
+      if (res.ok){
+        clearCart();
+        msg.textContent = `Tilaus lähetetty. Lasku ${data.invoice_number} lähetettiin sähköpostiisi.`;
+        form.reset();
+      } else {
+        msg.textContent = data.error || 'Tilauksen lähetys epäonnistui.';
+      }
+    });
+  </script>
+</LayoutCommon>

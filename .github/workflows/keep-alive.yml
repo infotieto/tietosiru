@@ -1,0 +1,18 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    - cron: "0 8 */3 * *"  # every 3 days 08:00 UTC
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase (products table hits Postgres, resets pause timer)
+        run: |
+          # Must hit a real PostgREST table — /auth/v1/health does NOT reset the timer
+          curl -s "$SUPABASE_URL/rest/v1/products?select=id&limit=1"                 -H "apikey: $SUPABASE_ANON_KEY"                 -H "Authorization: Bearer $SUPABASE_ANON_KEY" -o /dev/null -w "HTTP %{http_code}\n"
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
