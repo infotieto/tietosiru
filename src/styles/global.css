@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@plugin "flowbite/plugin";
+
+/* scrollbar replacement (was tailwind-scrollbar) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(156 163 175) rgb(229 231 235);
+}
+.dark * {
+  scrollbar-color: rgb(55 65 81) rgb(17 24 39);
+}
+::-webkit-scrollbar { width: 0.5rem; height: 0.5rem; }
+::-webkit-scrollbar-track { background: rgb(229 231 235); }
+.dark ::-webkit-scrollbar-track { background: rgb(17 24 39); }
+::-webkit-scrollbar-thumb { background: rgb(156 163 175); border-radius: 0.25rem; }
+.dark ::-webkit-scrollbar-thumb { background: rgb(55 65 81); }
+
+/* Tailwind v4 safelist workaround: force generation of flowbite/prose utilities used via markdown */
+@source "../**/*.{astro,html,js,jsx,md,mdx}";
+@source "../../node_modules/flowbite/**/*.js";

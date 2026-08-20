@@ -1,8 +1,9 @@
 ---
-import pkg from '../../package.json' assert { type: 'json' };
+import pkg from '../../package.json' with { type: 'json' };
 import { url } from '../lib/data.js';
 
 import { SITE_TITLE } from './constants.js';
+import '../styles/global.css';
 
 const { class: clazz } = Astro.props;
 ---
@@ -58,7 +59,7 @@ const { class: clazz } = Astro.props;
 
 <script>
 	import 'flowbite';
-	import 'flowbite/dist/datepicker.js';
+	// datepicker bundled in flowbite main entry
 </script>
 
 <style is:global>
