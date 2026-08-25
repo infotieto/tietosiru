@@ -1,0 +1,46 @@
+---
+import LayoutCommon from '../app/LayoutCommon.astro';
+import { SITE_TITLE } from '../app/constants.js';
+
+export interface Props {
+  title?: string;
+}
+
+const { title = 'Admin' } = Astro.props;
+---
+
+<LayoutCommon class="admin-theme">
+  <div class="flex h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+      <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+        <h1 class="text-xl font-bold text-gray-900 dark:text-white">{SITE_TITLE}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Admin</p>
+      </div>
+      <nav class="p-4 space-y-2">
+        <a href="/admin" class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">Dashboard</a>
+        <a href="/admin/asiakkaat" class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">Asiakkaat</a>
+        <a href="/admin/tuotteet" class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">Tuotteet</a>
+        <a href="/admin/tilaukset" class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">Tilaukset</a>
+        <hr class="my-4 border-gray-200 dark:border-gray-700">
+        <a href="/api/auth/admin-logout" class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 dark:text-red-400">Kirjaudu ulos</a>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 overflow-auto">
+      <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{title}</h2>
+      </header>
+      <div class="p-6">
+        <slot />
+      </div>
+    </main>
+  </div>
+</LayoutCommon>
+
+<style is:global>
+  .admin-theme {
+    /* Scope Flowbite admin styles */
+  }
+</style>

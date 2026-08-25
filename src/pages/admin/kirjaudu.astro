@@ -1,0 +1,58 @@
+---
+export const prerender = false;
+import LayoutCommon from '../../app/LayoutCommon.astro';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Check if already logged in
+const { data: { session } } = await supabase.auth.getSession();
+if (session) {
+  return Astro.redirect('/admin');
+}
+---
+
+<LayoutCommon>
+  <main class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+    <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow p-8">
+      <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Admin kirjautuminen</h1>
+      <form id="admin-login" class="space-y-4">
+        <div>
+          <label for="email" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Sähköposti</label>
+          <input id="email" name="email" type="email" required autocomplete="email"
+            class="w-full rounded border border-gray-300 px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Salasana</label>
+          <input id="password" name="password" type="password" required autocomplete="current-password"
+            class="w-full rounded border border-gray-300 px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+        </div>
+        <button type="submit" class="w-full bg-blue-600 text-white rounded py-2.5 hover:bg-blue-700">Kirjaudu</button>
+        <p id="msg" class="text-sm text-red-600 min-h-[1.25rem]"></p>
+      </form>
+    </div>
+  </main>
+  <script>
+    const form = document.getElementById('admin-login') as HTMLFormElement;
+    const msg = document.getElementById('msg') as HTMLParagraphElement;
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = (document.getElementById('email') as HTMLInputElement).value;
+      const password = (document.getElementById('password') as HTMLInputElement).value;
+      msg.textContent = 'Kirjaudutaan...';
+      const res = await fetch('/api/auth/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        location.href = '/admin';
+      } else {
+        msg.textContent = data.error || 'Kirjautuminen epäonnistui';
+      }
+    });
+  </script>
+</LayoutCommon>

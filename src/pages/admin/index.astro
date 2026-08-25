@@ -1,0 +1,60 @@
+---
+export const prerender = false;
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Check auth
+const token = Astro.cookies.get('sb-access-token')?.value;
+if (!token) {
+  return Astro.redirect('/admin/kirjaudu');
+}
+
+const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+if (userError || !user) {
+  return Astro.redirect('/admin/kirjaudu');
+}
+
+// Check admin
+const serviceSupabase = createClient(
+  import.meta.env.SUPABASE_URL,
+  import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+);
+const { data: adminUser } = await serviceSupabase
+  .from('admin_users')
+  .select('user_id')
+  .eq('user_id', user.id)
+  .maybeSingle();
+
+if (!adminUser) {
+  return Astro.redirect('/admin/kirjaudu');
+}
+
+// Stats
+const { count: customerCount } = await serviceSupabase.from('customers').select('*', { count: 'exact', head: true }).is('deleted_at', null);
+const { count: productCount } = await serviceSupabase.from('products').select('*', { count: 'exact', head: true });
+const { count: orderCount } = await serviceSupabase.from('orders').select('*', { count: 'exact', head: true });
+---
+
+<AdminLayout title="Dashboard">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Asiakkaita</h3>
+      <p class="text-3xl font-bold text-blue-600 mt-2">{customerCount ?? 0}</p>
+      <a href="/admin/asiakkaat" class="text-sm text-blue-600 hover:underline mt-2 inline-block">Hallitse →</a>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Tuotteita</h3>
+      <p class="text-3xl font-bold text-green-600 mt-2">{productCount ?? 0}</p>
+      <a href="/admin/tuotteet" class="text-sm text-blue-600 hover:underline mt-2 inline-block">Hallitse →</a>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Tilauksia</h3>
+      <p class="text-3xl font-bold text-purple-600 mt-2">{orderCount ?? 0}</p>
+      <a href="/admin/tilaukset" class="text-sm text-blue-600 hover:underline mt-2 inline-block">Hallitse →</a>
+    </div>
+  </div>
+</AdminLayout>
