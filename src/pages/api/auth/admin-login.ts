@@ -47,12 +47,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     import.meta.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  const { data: adminUser } = await serviceSupabase
+  const { data: adminUser, error: adminError } = await serviceSupabase
     .from('admin_users')
     .select('user_id')
     .eq('user_id', data.user.id)
     .maybeSingle();
 
+  console.log('admin check:', { userId: data.user.id, adminUser, adminError });
   if (!adminUser) {
     return new Response(JSON.stringify({ error: 'Ei admin-oikeuksia' }), {
       status: 403,
