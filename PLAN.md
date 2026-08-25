@@ -518,7 +518,7 @@ PDF structure for credit note: same as invoice but header `HYVITYSLASKU`, negati
 ## 11. Email (Resend)
 
 - Free: 3000/mo, 100/day — sufficient.
-- From: `noreply@tietosiru.fi` (verify domain in Resend).
+- From: `noreply@tietosiru.com` (verify domain in Resend).
 - Templates: HTML via Astro or `react-email` or plain HTML string.
 - Invoice email: subject `Lasku <invoice_number> — Tietosiru Oy`, body + PDF attachment + `Peruuta tilaus` link.
 - No marketing emails.
@@ -623,12 +623,12 @@ export default defineConfig({ vite: { plugins: [tailwindcss()] } })
 
 ```env
 # .env (not committed)
-PUBLIC_SITE_URL=https://tietosiru.fi
+PUBLIC_SITE_URL=https://tietosiru.com
 SUPABASE_URL=https://<project>.supabase.co
 SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...        # server only
 RESEND_API_KEY=re_...
-ADMIN_EMAIL=admin@tietosiru.fi
+ADMIN_EMAIL=admin@tietosiru.com
 MEMBER_SESSION_SECRET=random-32-chars   # HMAC for httpOnly cookie
 ```
 
